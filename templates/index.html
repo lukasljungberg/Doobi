@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dooby</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            background-color: #1DB954;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+
+        .player-container {
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        h1 {
+            color: #1DB954;
+        }
+
+        .playlist {
+            margin: 20px 0;
+            padding: 0;
+            list-style: none;
+            background: #1e1e1e;
+            border-radius: 8px;
+        }
+
+        .playlist li {
+            padding: 10px;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+        }
+
+        .playlist li:last-child {
+            border-bottom: none;
+        }
+
+        .playlist li:hover {
+            background: #333;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #1DB954;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .controls button:hover {
+            background-color: #17a747;
+        }
+
+        #genreModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        #genreModal select {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #genreModal button {
+            margin: 10px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #1DB954;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #genreModal button:hover {
+            background-color: #17a747;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <span>Dooby</span>
+        <a href="#" onclick="showGenreModal()">Upload Songs</a>
+    </div>
+
+    <div id="genreModal" style="display: none;">
+        <h2>Select Genre</h2>
+        <select id="genreDropdown">
+            <option value="Pop">Pop</option>
+            <option value="Rock">Rock</option>
+            <option value="Hip Hop">Hip Hop</option>
+            <option value="Jazz">Jazz</option>
+            <option value="Classical">Classical</option>
+            <option value="Electronic">Electronic</option>
+            <option value="Country">Country</option>
+            <option value="Blues">Blues</option>
+            <option value="Reggae">Reggae</option>
+            <option value="Folk">Folk</option>
+            <option value="Soul">Soul</option>
+            <option value="R&B">R&B</option>
+            <option value="Metal">Metal</option>
+            <option value="Punk">Punk</option>
+            <option value="Disco">Disco</option>
+            <option value="Funk">Funk</option>
+            <option value="Gospel">Gospel</option>
+            <option value="Latin">Latin</option>
+            <option value="Ska">Ska</option>
+            <option value="K-Pop">K-Pop</option>
+            <option value="Ambient">Ambient</option>
+            <option value="Trance">Trance</option>
+            <option value="House">House</option>
+            <option value="Techno">Techno</option>
+            <option value="Dubstep">Dubstep</option>
+            <option value="Synthwave">Synthwave</option>
+            <option value="Indie">Indie</option>
+            <option value="Alternative">Alternative</option>
+            <option value="Grunge">Grunge</option>
+            <option value="Opera">Opera</option>
+            <option value="Soundtrack">Soundtrack</option>
+            <option value="World">World</option>
+            <option value="Dance">Dance</option>
+            <option value="New Age">New Age</option>
+            <option value="Chillout">Chillout</option>
+            <option value="Experimental">Experimental</option>
+            <option value="Industrial">Industrial</option>
+            <option value="Trap">Trap</option>
+            <option value="Lo-fi">Lo-fi</option>
+            <option value="Swing">Swing</option>
+            <option value="Big Band">Big Band</option>
+            <option value="Hardcore">Hardcore</option>
+            <option value="Progressive">Progressive</option>
+            <option value="Post Rock">Post Rock</option>
+            <option value="Shoegaze">Shoegaze</option>
+            <option value="Dream Pop">Dream Pop</option>
+            <option value="Baroque">Baroque</option>
+            <option value="Acoustic">Acoustic</option>
+        </select>
+        <button onclick="confirmGenre()">Next</button>
+        <button onclick="closeModal()">Cancel</button>
+    </div>
+
+    <div class="player-container">
+        <h1>Dooby</h1>
+
+        <ul class="playlist" id="playlist">
+            <!-- Songs will be dynamically added here -->
+        </ul>
+
+        <div class="controls">
+            <button onclick="previousSong()">Previous</button>
+            <button onclick="togglePlayPause()" id="playPauseButton">Play</button>
+            <button onclick="nextSong()">Next</button>
+        </div>
+
+        <input type="file" id="fileInput" multiple style="display: none;" onchange="addSongs()">
+    </div>
+
+    <script>
+        const playlist = document.getElementById('playlist');
+        const playPauseButton = document.getElementById('playPauseButton');
+        const fileInput = document.getElementById('fileInput');
+        const genreModal = document.getElementById('genreModal');
+        const genreDropdown = document.getElementById('genreDropdown');
+
+        let selectedGenre = '';
+        let songs = [];
+        let currentSongIndex = 0;
+        let isPlaying = false;
+        function closeModal() {
+            genreModal.style.display = 'none';
+        }
+
+        function showGenreModal() {
+            genreModal.style.display = 'flex';
+        }
+
+        function confirmGenre() {
+            selectedGenre = genreDropdown.value;
+            genreModal.style.display = 'none';
+            fileInput.click();
+        }
+
+        function addSongs() {
+            const files = fileInput.files;
+            const formData = new FormData();
+            formData.append('genre', selectedGenre);
+
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+
+            fetch('/add_songs', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    songs = data.songs;
+                    updatePlaylist();
+                });
+        }
+
+        function updatePlaylist() {
+            playlist.innerHTML = '';
+            songs.forEach((song, index) => {
+                const li = document.createElement('li');
+                li.textContent = song;
+                li.onclick = () => playSong(index);
+                playlist.appendChild(li);
+            });
+        }
+
+        function togglePlayPause() {
+            if (isPlaying) {
+                fetch('/pause', { method: 'POST' });
+                playPauseButton.textContent = 'Play';
+            } else {
+                playSong(currentSongIndex);
+                playPauseButton.textContent = 'Pause';
+            }
+            isPlaying = !isPlaying;
+        }
+
+        function playSong(index) {
+            currentSongIndex = index;
+            fetch('/play', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `index=${index}`
+            });
+            playPauseButton.textContent = 'Pause';
+            isPlaying = true;
+        }
+
+        function previousSong() {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            playSong(currentSongIndex);
+        }
+
+        function nextSong() {
+            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            playSong(currentSongIndex);
+        }
+    </script>
+</body>
+
+</html>
