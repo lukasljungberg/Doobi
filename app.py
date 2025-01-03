@@ -24,7 +24,14 @@ def add_songs():
 
 @app.route('/uploads/<string:song>', methods=['GET'])
 def get_song(song):
-    return send_file('uploads/'+song)
+    dir = os.listdir('./uploads')
+    idx = int(song)
+    try:
+        dir[int(song)]
+    except:
+        idx = (idx + 1) % (len(dir))
+
+    return send_file('uploads/'+dir[idx])
 
 
 if __name__ == "__main__":

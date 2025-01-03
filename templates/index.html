@@ -227,9 +227,9 @@
         </ul>
 
         <div class="controls">
-            <button onclick="previousSong()">Previous</button>
+            <button onclick="previousSong()" id="previous">Previous</button>
             <button onclick="togglePlayPause()" id="playPauseButton">Play</button>
-            <button onclick="nextSong()">Next</button>
+            <button onclick="nextSong()" id="next">Next</button>
         </div>
 
         <input type="file" id="fileInput" multiple style="display: none;" onchange="addSongs()">
@@ -239,23 +239,54 @@
         <div id="timeIndicator"></div>
     </div>
     <script>
-        const audioUrl = '/uploads/lost_in_dreams.mp3'; // Replace with your URL
+        const song_id = "song_id";
+        if (localStorage.getItem(song_id) == null)
+            localStorage.setItem(song_id, parseInt(0, 10).toString());
+        console.log(parseInt(localStorage.getItem(song_id), 10));
+        let audioUrl = '/uploads/' + parseInt(localStorage.getItem(song_id), 10).toString();
         const audioPlayer = document.getElementById('audioPlayer');
         const playPause = document.getElementById('playPauseButton');
         const progressBar = document.getElementById('progressBar');
         const timeIndicator = document.getElementById('timeIndicator');
         const audioTimeline = document.getElementById('audioTimeline');
+        const previous = document.getElementById('previous');
+        const next = document.getElementById('next');
         audioPlayer.src = audioUrl;
 
         // Automatically play the audio
         function togglePlayPause() {
             if (audioPlayer.paused) {
                 playPause.innerHTML = "Pause";
+                if (localStorage.getItem(song_id) == null)
+                    localStorage.setItem(song_id, parseInt(0, 10).toString());
+                audioUrl = '/uploads/' + parseInt(localStorage.getItem(song_id), 10).toString();
                 audioPlayer.play();
             } else {
                 playPause.innerHTML = "Play";
                 audioPlayer.pause();
             }
+        }
+
+        function nextSong() {
+            audioPlayer.pause();
+            const id = (parseInt(localStorage.getItem(song_id), 10) + 1).toString();
+            audioUrl = '/uploads/' + id;
+            audioPlayer.src = audioUrl;
+            resetProgress();
+            localStorage.setItem(song_id, id);
+            audioPlayer.play();
+        }
+
+        function resetProgress() {
+            const currentTime = audioPlayer.currentTime;
+            const duration = audioPlayer.duration;
+
+            // Update the progress bar width (green part)
+            const progressPercent = 0;
+            progressBar.style.width = progressPercent + '%';
+
+            // Update the position of the time indicator (green dot)
+            timeIndicator.style.left = progressPercent + '%';
         }
 
         function updateProgress() {
