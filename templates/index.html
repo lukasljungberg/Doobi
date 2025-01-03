@@ -122,6 +122,36 @@
         #genreModal button:hover {
             background-color: #17a747;
         }
+
+        #audioTimeline {
+            width: 100%;
+            height: 10px;
+            background-color: #aaa;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        #progressBar {
+            width: 0;
+            height: 100%;
+            background-color: #1DB954;
+            border-radius: 5px 0 0 5px;
+            position: absolute;
+        }
+
+        #timeIndicator {
+            position: absolute;
+            top: -5px;
+            left: 0;
+            width: 10px;
+            height: 20px;
+            background-color: #1DB954;
+            border-radius: 50%;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
     </style>
 </head>
 
@@ -130,7 +160,9 @@
         <span>Dooby</span>
         <a href="#" onclick="showGenreModal()">Upload Songs</a>
     </div>
-
+    <audio id="audioPlayer">
+        Your browser does not support the audio element.
+    </audio>
     <div id="genreModal" style="display: none;">
         <h2>Select Genre</h2>
         <select id="genreDropdown">
@@ -202,93 +234,54 @@
 
         <input type="file" id="fileInput" multiple style="display: none;" onchange="addSongs()">
     </div>
-
+    <div id="audioTimeline">
+        <div id="progressBar"></div>
+        <div id="timeIndicator"></div>
+    </div>
     <script>
-        const playlist = document.getElementById('playlist');
-        const playPauseButton = document.getElementById('playPauseButton');
-        const fileInput = document.getElementById('fileInput');
-        const genreModal = document.getElementById('genreModal');
-        const genreDropdown = document.getElementById('genreDropdown');
+        const audioUrl = '/uploads/lost_in_dreams.mp3'; // Replace with your URL
+        const audioPlayer = document.getElementById('audioPlayer');
+        const playPause = document.getElementById('playPauseButton');
+        const progressBar = document.getElementById('progressBar');
+        const timeIndicator = document.getElementById('timeIndicator');
+        const audioTimeline = document.getElementById('audioTimeline');
+        audioPlayer.src = audioUrl;
 
-        let selectedGenre = '';
-        let songs = [];
-        let currentSongIndex = 0;
-        let isPlaying = false;
-        function closeModal() {
-            genreModal.style.display = 'none';
-        }
-
-        function showGenreModal() {
-            genreModal.style.display = 'flex';
-        }
-
-        function confirmGenre() {
-            selectedGenre = genreDropdown.value;
-            genreModal.style.display = 'none';
-            fileInput.click();
-        }
-
-        function addSongs() {
-            const files = fileInput.files;
-            const formData = new FormData();
-            formData.append('genre', selectedGenre);
-
-            for (let i = 0; i < files.length; i++) {
-                formData.append('files', files[i]);
-            }
-
-            fetch('/add_songs', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    songs = data.songs;
-                    updatePlaylist();
-                });
-        }
-
-        function updatePlaylist() {
-            playlist.innerHTML = '';
-            songs.forEach((song, index) => {
-                const li = document.createElement('li');
-                li.textContent = song;
-                li.onclick = () => playSong(index);
-                playlist.appendChild(li);
-            });
-        }
-
+        // Automatically play the audio
         function togglePlayPause() {
-            if (isPlaying) {
-                fetch('/pause', { method: 'POST' });
-                playPauseButton.textContent = 'Play';
+            if (audioPlayer.paused) {
+                playPause.innerHTML = "Pause";
+                audioPlayer.play();
             } else {
-                playSong(currentSongIndex);
-                playPauseButton.textContent = 'Pause';
+                playPause.innerHTML = "Play";
+                audioPlayer.pause();
             }
-            isPlaying = !isPlaying;
         }
 
-        function playSong(index) {
-            currentSongIndex = index;
-            fetch('/play', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `index=${index}`
-            });
-            playPauseButton.textContent = 'Pause';
-            isPlaying = true;
+        function updateProgress() {
+            const currentTime = audioPlayer.currentTime;
+            const duration = audioPlayer.duration;
+
+            // Update the progress bar width (green part)
+            const progressPercent = (currentTime / duration) * 100;
+            progressBar.style.width = progressPercent + '%';
+
+            // Update the position of the time indicator (green dot)
+            timeIndicator.style.left = progressPercent + '%';
         }
 
-        function previousSong() {
-            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
-            playSong(currentSongIndex);
-        }
-
-        function nextSong() {
-            currentSongIndex = (currentSongIndex + 1) % songs.length;
-            playSong(currentSongIndex);
-        }
+        audioTimeline.addEventListener('click', function (event) {
+            const clickX = event.offsetX;
+            const timelineWidth = audioTimeline.offsetWidth;
+            const newTime = (clickX / timelineWidth) * audioPlayer.duration;
+            audioPlayer.currentTime = newTime;
+            updateProgress();
+            if (!audioPlayer.paused) {
+                audioPlayer.play();
+            } else {
+                audioPlayer.pause();
+            }
+        });
     </script>
 </body>
 
