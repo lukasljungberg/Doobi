@@ -34,14 +34,19 @@ def download_multiple_files(id):
     dir = os.listdir('uploads/objects')
     idx = int(id)
     try:
+        if idx < 0:
+            idx = 0
         dir[idx]
+        with open('uploads/objects/'+dir[idx], 'r') as f:
+                obj = json.load(f)
+        return jsonify(obj)
     except:
         if len(dir) > 0:
-            idx = (idx + 1) % (len(dir))
+            idx = (idx + 1) % (len(dir)) - 1
             with open('uploads/objects/'+dir[idx], 'r') as f:
                 obj = json.load(f)
             return jsonify(obj)
-        return Response(status=404)
+    return Response(status=404)
 
 # Stream an image file
 @app.route('/stream-image/<string:fp>', methods=['GET'])
