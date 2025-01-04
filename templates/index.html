@@ -320,7 +320,6 @@
                     body: formData,
                 });
                 if (response.ok) {
-                    const result = await response.json();
                     alert("Upload successful!");
                     closeUploadModal();
                 } else {
@@ -332,12 +331,14 @@
             }
         }
         // Automatically play the audio
-        function togglePlayPause() {
+        async function togglePlayPause() {
             if (audioPlayer.paused) {
                 playPause.innerHTML = "Pause";
                 if (localStorage.getItem(song_id) == null)
                     localStorage.setItem(song_id, parseInt(0, 10).toString());
-                audioUrl = '/uploads/songs/' + parseInt(localStorage.getItem(song_id), 10).toString();
+                console.log(localStorage.getItem(song_id));
+                const f_paths = await fetch('/objects/songs/' + localStorage.getItem(song_id)).then(res => { return res.json() });
+                audioPlayer.src = '/stream-audio/' + f_paths['file_path']
                 audioPlayer.play();
             } else {
                 playPause.innerHTML = "Play";
@@ -345,23 +346,23 @@
             }
         }
 
-        function nextSong() {
+        async function nextSong() {
             audioPlayer.pause();
             const id = (parseInt(localStorage.getItem(song_id), 10) + 1).toString();
-            audioUrl = '/uploads/songs/' + id;
-            audioPlayer.src = audioUrl;
-            resetProgress();
             localStorage.setItem(song_id, id);
+            const f_paths = await fetch('/objects/songs/' + localStorage.getItem(song_id)).then(res => { return res.json() });
+            audioPlayer.src = '/stream-audio/' + f_paths['file_path'];
+            resetProgress();
             audioPlayer.play();
         }
 
-        function previousSong() {
+        async function previousSong() {
             audioPlayer.pause();
             const id = (parseInt(localStorage.getItem(song_id), 10) - 1).toString();
-            audioUrl = '/uploads/songs/' + id;
-            audioPlayer.src = audioUrl;
-            resetProgress();
             localStorage.setItem(song_id, id);
+            const f_paths = await fetch('/objects/songs/' + localStorage.getItem(song_id)).then(res => { return res.json() });
+            audioPlayer.src = '/stream-audio/' + f_paths['file_path'];
+            resetProgress();
             audioPlayer.play();
         }
 
@@ -401,6 +402,21 @@
                 audioPlayer.pause();
             }
         });
+
+        // Function to start the loop
+        function startLoop() {
+            // Loop using requestAnimationFrame
+            function update() {
+                if (!audioPlayer.paused) {
+                    updateProgress();
+                    requestAnimationFrame(update); // Schedule the next frame
+                }
+            }
+            update(); // Start the loop
+        }
+
+        // Event listeners to handle play/pause
+        audioPlayer.addEventListener('play', startLoop);
     </script>
 </body>
 
