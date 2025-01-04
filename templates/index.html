@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doobi</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <style>
     body {
@@ -188,9 +189,9 @@
 
         <img id="coverImage" width="200px">
         <div class="controls">
-            <button onclick="previousSong()" id="previous">Previous</button>
-            <button onclick="togglePlayPause()" id="playPauseButton">Play</button>
-            <button onclick="nextSong()" id="next">Next</button>
+            <button onclick="previousSong()" id="previous"><i class="fas fa-backward"></i></button>
+            <button onclick="togglePlayPause()" id="playPauseButton"><i class="fas fa-play"></i></button>
+            <button onclick="nextSong()" id="next"><i class="fas fa-forward"></i></button>
         </div>
 
         <div id="audioTimeline">
@@ -335,7 +336,7 @@
         // Automatically play the audio
         async function togglePlayPause() {
             if (audioPlayer.paused) {
-                playPause.innerHTML = "Pause";
+                playPause.innerHTML = '<i class="fas fa-pause"></i>';
                 if (localStorage.getItem(song_id) == null)
                     localStorage.setItem(song_id, parseInt(0, 10).toString());
                 if (audioPlayer.currentTime == 0) {
@@ -346,7 +347,7 @@
 
                 audioPlayer.play();
             } else {
-                playPause.innerHTML = "Play";
+                playPause.innerHTML = '<i class="fas fa-play"></i>';
                 audioPlayer.pause();
             }
         }
