@@ -186,6 +186,7 @@
             Your browser does not support the audio element.
         </audio>
 
+        <img id="coverImage" width="200px">
         <div class="controls">
             <button onclick="previousSong()" id="previous">Previous</button>
             <button onclick="togglePlayPause()" id="playPauseButton">Play</button>
@@ -279,6 +280,7 @@
         console.log(parseInt(localStorage.getItem(song_id), 10));
         let audioUrl = '/uploads/songs/' + parseInt(localStorage.getItem(song_id), 10).toString();
         const audioPlayer = document.getElementById('audioPlayer');
+        const coverImage = document.getElementById('coverImage');
         const playPause = document.getElementById('playPauseButton');
         const progressBar = document.getElementById('progressBar');
         const timeIndicator = document.getElementById('timeIndicator');
@@ -336,9 +338,12 @@
                 playPause.innerHTML = "Pause";
                 if (localStorage.getItem(song_id) == null)
                     localStorage.setItem(song_id, parseInt(0, 10).toString());
-                console.log(localStorage.getItem(song_id));
-                const f_paths = await fetch('/objects/songs/' + localStorage.getItem(song_id)).then(res => { return res.json() });
-                audioPlayer.src = '/stream-audio/' + f_paths['file_path']
+                if (audioPlayer.currentTime == 0) {
+                    const f_paths = await fetch('/objects/songs/' + localStorage.getItem(song_id)).then(res => { return res.json() });
+                    audioPlayer.src = '/stream-audio/' + f_paths['file_path']
+                    coverImage.src = '/stream-image/' + f_paths['cover_path']
+                }
+
                 audioPlayer.play();
             } else {
                 playPause.innerHTML = "Play";
@@ -352,6 +357,7 @@
             localStorage.setItem(song_id, id);
             const f_paths = await fetch('/objects/songs/' + localStorage.getItem(song_id)).then(res => { return res.json() });
             audioPlayer.src = '/stream-audio/' + f_paths['file_path'];
+            coverImage.src = '/stream-image/' + f_paths['cover_path']
             resetProgress();
             audioPlayer.play();
         }
@@ -362,6 +368,7 @@
             localStorage.setItem(song_id, id);
             const f_paths = await fetch('/objects/songs/' + localStorage.getItem(song_id)).then(res => { return res.json() });
             audioPlayer.src = '/stream-audio/' + f_paths['file_path'];
+            coverImage.src = '/stream-image/' + f_paths['cover_path']
             resetProgress();
             audioPlayer.play();
         }
@@ -404,8 +411,7 @@
         });
 
         // Function to start the loop
-        function startLoop() {
-            // Loop using requestAnimationFrame
+        function startLoop(currentTime) {
             function update() {
                 if (!audioPlayer.paused) {
                     updateProgress();
@@ -416,7 +422,7 @@
         }
 
         // Event listeners to handle play/pause
-        audioPlayer.addEventListener('play', startLoop);
+        audioPlayer.addEventListener('play', () => { startLoop(audioPlayer.currentTime) });
     </script>
 </body>
 
