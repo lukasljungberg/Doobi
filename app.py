@@ -10,12 +10,12 @@ CORS(app)
 def index():
     return render_template('index.html')
 
-@app.route('/add_songs', methods=['POST'])
+@app.route('/upload-song', methods=['POST'])
 def add_songs():
     file = request.files.get("song")
     cover = request.files.get("cover")
     song_name = request.form.get("songName")
-    artist = request.form.get("artist")
+    artist = request.form.get("artistName")
     genre = request.form.get("genre")
     obj = {}
     file_path = os.path.join("uploads/songs", file.filename)
