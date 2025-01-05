@@ -15,12 +15,13 @@
         justify-content: center;
         align-items: center;
         height: 100vh;
-        background-color: #3d3f4a;
+        background-color: rgb(24, 24, 24);
     }
 
     .container {
         width: 90%;
-        max-width: 800px;
+        height: 90%;
+        max-width: 1200px;
         background: #111212;
         border-radius: 15px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -88,7 +89,14 @@
     img#coverImage {
         margin: 15px 0;
         border-radius: 10px;
+        max-width: 100%;
+        max-height: calc(100% - 150px);
+        /* Adjust to leave space for controls and timeline */
+        object-fit: contain;
+        width: auto;
+        height: auto;
     }
+
 
     .controls {
         display: flex;
@@ -230,7 +238,6 @@
         </div>
 
         <div class="player-container">
-            <h1>Doobi</h1>
 
             <ul class="playlist" id="playlist">
                 <!-- Songs will be dynamically added here -->
@@ -239,7 +246,8 @@
                 Your browser does not support the audio element.
             </audio>
 
-            <img id="coverImage" width="200px">
+            <img id="coverImage">
+            <h1 id="songName"></h1>
             <div class="controls">
                 <button onclick="previousSong()" id="previous"><i class="fas fa-backward"></i></button>
                 <button onclick="togglePlayPause()" id="playPauseButton"><i class="fas fa-play"></i></button>
@@ -259,6 +267,8 @@
             <form id="uploadForm">
                 <label for="artistName">Artist Name:</label>
                 <input type="text" id="artistName" name="artistName" required>
+                <label for="songName">Song Name:</label>
+                <input type="text" id="songName" name="songName" required>
 
                 <label for="genre">Genre:</label>
                 <select id="genre" name="genre" required>
@@ -293,7 +303,7 @@
         const timeIndicator = document.getElementById('timeIndicator');
         const audioTimeline = document.getElementById('audioTimeline');
         const previous = document.getElementById('previous');
-        const next = document.getElementById('next');
+        const songName = document.getElementById('songName');
         audioPlayer.src = audioUrl;
         // Function to show the upload modal
         function showUploadModal() {
@@ -345,11 +355,11 @@
                 if (localStorage.getItem(song_id) == null)
                     localStorage.setItem(song_id, parseInt(0, 10).toString());
                 if (audioPlayer.currentTime == 0) {
-                    const f_paths = await fetch('/objects/songs/' + localStorage.getItem(song_id)).then(res => { return res.json() });
-                    audioPlayer.src = '/stream-audio/' + f_paths['file_path']
-                    coverImage.src = '/stream-image/' + f_paths['cover_path']
+                    const song = await fetch('/objects/songs/' + localStorage.getItem(song_id)).then(res => { return res.json() });
+                    audioPlayer.src = '/stream-audio/' + song['file_path']
+                    coverImage.src = '/stream-image/' + song['cover_path']
                 }
-
+                songName.innerText = song['name'];
                 audioPlayer.play();
             } else {
                 playPause.innerHTML = '<i class="fas fa-play"></i>';

@@ -14,6 +14,7 @@ def index():
 def add_songs():
     file = request.files.get("song")
     cover = request.files.get("cover")
+    song_name = request.form.get("songName")
     artist = request.form.get("artist")
     genre = request.form.get("genre")
     obj = {}
@@ -22,6 +23,7 @@ def add_songs():
     obj['file_path'] = str(file_path).replace('/', '.')
     obj['artist'] = artist
     obj['genre'] = genre
+    obj['name'] = song_name
     cover_path = os.path.join("uploads/covers", cover.filename)
     cover.save(cover_path)
     obj['cover_path'] = str(cover_path).replace('/', '.')
