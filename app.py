@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify, send_file, Response,
 import os
 import json
 from flask_cors import CORS
-# Initialize Flask and pygame mixer
+# Initialize Flask
 app = Flask(__name__)
 CORS(app)
 
